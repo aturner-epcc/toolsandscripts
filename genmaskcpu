@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+#
+# Script to generate a fat CPU bitmask to allow pinning
+# correctly in Slurm when you run multiple subjobs per
+# node
+#
+# 2021, A. R. Turner, EPCC, The University of Edinburgh
+
+import sys
+
+# Make sure we have the correct number of arguments
+if len(sys.argv) < 5:
+    sys.stderr.write("""
+genmaskcpu <subjobs-per-node> <subjob ID> <MPI processes per subjob> <OpenMP threads per subjob>
+
+Generates a CPU mask for correct pinning when you
+want to subdivide a node into multiple jobs. Works for pure MPI,
+pure OpenMP or mixed MPI+OpenMP use. The output should be used with
+the srun option --cpu-bind=mask_cpu.
+
+For example, to run 4 subjobs per node, each of which
+uses 4 MPI processes and 4 OpenMP threads per MPI process, you
+could use a fragment such as this in your job script (assuming
+you are requesting a single node):
+
+module load cray-python
+module load genmaskcpu
+export OMP_NUM_THREADS=2
+for i in $(seq 1 4)
+do
+   maskcpu=$(genmaskcpu 4 $i 8 2)
+   srun --cpu-bind=mask_cpu:${maskcpu} --ntasks=8 --tasks-per-node=4 --cpus-per-task=4 myexe.x &
+done
+wait
+
+Python 3 required
+    """)
+    sys.exit(1)
+
+subjobspernode = int(sys.argv[1])
+subjobid = int(sys.argv[2])
+nproc = int(sys.argv[3])
+nthread = int(sys.argv[4])
+
+CORES_PER_NODE = 128
+
+# Basic check, make sure that we are not requesting too many cores
+coresreq = subjobspernode * nproc * nthread
+err = f"Total cores requested is {coresreq}, maximum available is {CORES_PER_NODE}"
+assert coresreq <= CORES_PER_NODE, err
+
+# TODO - Add checks to warn if options will lead to a poor distribution
+
+# Work out how much of the node is assigned to each subjob
+corespersubjob = int(CORES_PER_NODE / subjobspernode)
+
+# Work out the first core ID for this subjob
+startid = (subjobid-1) * corespersubjob
+
+mask = ''
+for i in range(0,nproc):
+    # This is the process CPU ID
+    procid = startid + i*nthread
+    valsum = {}
+    for j in range(0,nthread):
+        # Thread CPU ID
+        threadid = procid+j
+        # Convert to bitmask components
+        pos = int(threadid/4)
+        offset = threadid - pos*4
+        val = 2**offset
+        # This is a fat bitmask so add up the thread values in the right position
+        valsum[pos] = valsum.get(pos, 0) + val  
+    valmask = ''
+    # Generate the hex repreesntation of the fat bitmask
+    for j in range(max(valsum.keys()), -1, -1):
+        valmask = f'{valmask}{valsum.get(j, 0):X}'
+    # Append to the list of masks in the appropriate way for this subjob
+    if i == 0:
+       mask = '0x' + f'{valmask}'
+    else:
+       mask = f'{mask},0x{valmask}'
+
+sys.stdout.write(mask)
