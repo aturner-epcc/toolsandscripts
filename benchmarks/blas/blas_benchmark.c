@@ -56,7 +56,7 @@ double wtime()
 /*-----------------------------------------------------------------------------
  *  DGEMV Benchmark
  *-----------------------------------------------------------------------------*/
-void benchmark_dgemv(Int n, Int Runs, double *rtime, double *gflops)
+void benchmark_dgemv(char *order, Int n, Int m, Int Runs, double *rtime, double *gflops)
 {
     Int i;
 	double *A, *B, *C;
@@ -65,34 +65,49 @@ void benchmark_dgemv(Int n, Int Runs, double *rtime, double *gflops)
 	double flops;
 	Int incb = 1, incc = 1;
 
-    A = malloc(sizeof(double) * n *n );
-	B = malloc(sizeof(double) * n );
-	C = malloc(sizeof(double) * n );
+    A = malloc(sizeof(double) * n * m );
+    if (strcasecmp(order, "T") == 0 ){
+	   B = malloc(sizeof(double) * m );
+	   C = malloc(sizeof(double) * n );
+       for (i = 0; i < m; i++) {
+		   B[i] = i*2+1;
+       }
+       for (i = 0; i < n; i++) {
+		   C[i] = 1;
+       }
+    } else {
+       B = malloc(sizeof(double) * n );
+	   C = malloc(sizeof(double) * m );
+       for (i = 0; i < n; i++) {
+		   B[i] = i*2+1;
+       }
+       for (i = 0; i < m; i++) {
+		   C[i] = 1;
+       }
+    }
 
-	for ( i = 0; i < n * n; i++){
-		A[i]=i+1;
-	}
-	for (i = 0; i < n; i++) {
-		B[i]=i*2+1;
-		C[i]=1;
+	for ( i = 0; i < n; i++ ){
+        for ( j = 0; j < m; j++ ){
+            A[i][j] = i+j;
+        }	
 	}
 
     /*-----------------------------------------------------------------------------
      *  Warmup
      *-----------------------------------------------------------------------------*/
-    dgemv_("N", &n,&n,&alpha, A, &n, B,&incb, &beta, C, &incc);
-    dgemv_("N", &n,&n,&alpha, A, &n, B,&incb, &beta, C, &incc);
-    dgemv_("N", &n,&n,&alpha, A, &n, B,&incb, &beta, C, &incc);
+    dgemv_(&order, &n, &m, &alpha, A, &n, B,&incb, &beta, C, &incc);
+    dgemv_(&order, &n, &m, &alpha, A, &n, B,&incb, &beta, C, &incc);
+    dgemv_(&order, &n, &m, &alpha, A, &n, B,&incb, &beta, C, &incc);
 
     /*-----------------------------------------------------------------------------
      *  Benchmark
      *-----------------------------------------------------------------------------*/
     ts = wtime();
 	for (i=0; i < Runs; i++){
-		dgemv_("N", &n,&n,&alpha, A, &n, B,&incb, &beta, C, &incc);
+		dgemv_(&order, &n, &m, &alpha, A, &n, B,&incb, &beta, C, &incc);
 	}
 	te = wtime();
-	flops = 2.0 * n *n;
+	flops = 2.0 * n * m;
 	flops /=1000*1000*1000;
 	flops /= (te-ts)/Runs;
 
@@ -468,6 +483,7 @@ int main (int argc, char **argv) {
     char *skip_str = NULL;
     char *only_str = NULL;
     char bk_name[128];
+    char order[1];
     benchmark_func_t benchmark = NULL;
     int latency = 0;
 
@@ -481,7 +497,9 @@ int main (int argc, char **argv) {
             /* Argument styles: no_argument, required_argument, optional_argument */
             {"help",    no_argument,    0,    'h'},
             {"runs",    required_argument, 0, 'r'},
-            {"dim",     required_argument, 0, 'd'},
+            {"nsize",     required_argument, 0, 'n'},
+            {"msize",     required_argument, 0, 'm'},
+            {"trans",     required_argument, 0, 't'},
             {"benchmark", required_argument, 0, 'b'},
             {0,0,0,0}
         };
@@ -491,7 +509,7 @@ int main (int argc, char **argv) {
             no_argument: " "
             required_argument: ":"
             optional_argument: "::" */
-       choice = getopt_long( argc, argv, "hr:d:b:",
+       choice = getopt_long( argc, argv, "hr:n:m:t:b:",
                     long_options, &option_index);
 
 
@@ -508,7 +526,9 @@ int main (int argc, char **argv) {
                     printf("\n");
                     printf("The options are:\n");
                     printf(" [--help|-h]        Print this help.\n");
-                    printf(" [--dim|-d N]       Dimension of the example.\n");
+                    printf(" [--nsize|-n N]       Dimension, n, of the case.\n");
+                    printf(" [--msize|-m N]       Dimension, m, of the case.\n");
+                    printf(" [--trans|-t T or N]       Transpose (T) or normal (N) problem.\n");
                     printf(" [--runs|-r RUNS]   Number of runs to perform.\n");
                     printf(" [--benchmark|-b NAME] Name of the Benchmark\n");
                     printf("\n");
@@ -517,11 +537,17 @@ int main (int argc, char **argv) {
                 }
 
                 break;
-            case 'd':
+            case 'n':
                 n = atoi(optarg);
+                break;
+            case 'm':
+                m = atoi(optarg);
                 break;
             case 'r':
                 runs = atoi(optarg);
+                break;
+            case 't':
+                strncpy(order, optarg, 1);
                 break;
             case 'b':
                 if (strcasecmp(optarg, "?" ) == 0) {
