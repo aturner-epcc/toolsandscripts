@@ -1,23 +1,23 @@
-SRC	= blas_benchmark.c
+SRC	= dgemv_benchmark.f90
 
-OBJ	=$(SRC:.c=.o)
+OBJ	=$(SRC:.f90=.o)
 
-CC      = cc
+FC      = ftn
 PP      = 
 
 LDFLAGS =
-CFLAGS  =  -O3 $(PP)
+FFLAGS  =  -O3 $(PP)
 LIBS    = 
 
-PRG	= blas_libsci
+PRG	= dgemv_libsci.x
 
 main:	$(PRG) 
 
-.c.o:	Makefile.libsci
-	$(CC) -c $(CFLAGS) $<
+.f90.o:	Makefile.libsci
+	$(FC) -c $(FFLAGS) $<
 
 $(PRG):$(OBJ) Makefile.libsci
-	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
+	$(FC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
 
 clean:
 	rm -fr $(TMP) $(OBJ) $(PRG) core
