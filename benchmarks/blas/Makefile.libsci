@@ -1,6 +1,7 @@
+MF      = Makefile.libsci
+
 SRC	= dgemv_benchmark.f90
 
-OBJ	=$(SRC:.f90=.o)
 
 FC      = ftn
 PP      = 
@@ -9,15 +10,23 @@ LDFLAGS =
 FFLAGS  =  -O3 $(PP)
 LIBS    = 
 
-PRG	= dgemv_libsci.x
+EXE	= dgemv_libsci.x
 
-main:	$(PRG) 
+.SUFFIXES: .f90 .o
 
-.f90.o:	Makefile.libsci
+OBJ	=$(SRC:.f90=.o)
+
+.f90.o:
 	$(FC) -c $(FFLAGS) $<
 
-$(PRG):$(OBJ) Makefile.libsci
+all:	$(EXE)
+
+$(EXE):$(OBJ)
 	$(FC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
 
+$(OBJ): $(MF)
+
 clean:
-	rm -fr $(TMP) $(OBJ) $(PRG) core
+	rm -fr $(TMP) $(OBJ) $(EXE) core
+
+

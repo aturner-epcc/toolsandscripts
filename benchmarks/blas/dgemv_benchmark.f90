@@ -20,24 +20,23 @@ program dgemv_benchmark
    call get_command_argument(2, arg)
    read(arg,*) n
    call get_command_argument(3, arg)
-   read(arg,*) lda
-   call get_command_argument(4, arg)
-   read(arg,*) incx
-   call get_command_argument(5, arg)
-   read(arg,*) incy
-   call get_command_argument(6, arg)
    read(arg,*) nrun
 
-   ! Allocate and assign arrays
+   ! Initialise values
    alpha = 1.0_dp
    beta = 1.0_dp
+   incx = 1
+   incy = 1
+   lda = m
+
+   ! Allocate and assign arrays
    allocate(a(lda,n))
    allocate(xn(n))
    allocate(yn(m))
    allocate(xt(m))
    allocate(yt(n))
-   do i = 1, n
-      do j = 1, m
+   do i = 1, m
+      do j = 1, n
         a(i,j) = real((i-1)*n + j, dp)
       end do
    end do
@@ -82,14 +81,10 @@ program dgemv_benchmark
    ! ********* End of non-transpose benchmark ***********
 
    ! ********* Start of transpose benchmark ***********
-   ! Initialise clock
-   call system_clock(count_rate=crate)
-   write(*,*) "System clock rate = ", crate
-
    ! Run the benchmark
    call system_clock(cstart)
    do i = 1, nrun
-      call dgemv('T', m, n, alpha, a, lda, xn, incx, beta, yn, incy)
+      call dgemv('T', m, n, alpha, a, lda, xt, incx, beta, yt, incy)
    end do
    call system_clock(cend)
 
