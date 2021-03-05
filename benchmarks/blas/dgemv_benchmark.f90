@@ -1,17 +1,17 @@
 program dgemv_benchmark
    use, intrinsic :: iso_fortran_env
    implicit none
-   
+
    integer, parameter :: dp = REAL64
 
    integer(4) :: i, j
    integer(8) :: crate, cstart, cend
-   charachter(100) :: arg
+   character(100) :: arg
    
    integer(4) :: n, m, lda, incx, incy
    real(kind=dp) :: alpha, beta
    real(kind=dp), dimension(:,:), allocatable :: a
-   real(kind=dp), dimension(:), allocatable : xn, yn, xt, yt
+   real(kind=dp), dimension(:), allocatable :: xn, yn, xt, yt
 
    ! Read in parameters
    call get_command_argument(1, arg)
