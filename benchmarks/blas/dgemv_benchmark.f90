@@ -78,7 +78,6 @@ program dgemv_benchmark
    write(*,*) "Normal time = ", etime
    write(*,*) "Normal Gflops", flops
 
-
    deallocate(a)
    deallocate(xn)
    deallocate(yn)
