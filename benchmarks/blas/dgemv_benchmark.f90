@@ -58,6 +58,7 @@ program dgemv_benchmark
    call dgemv('T', m, n, alpha, a, lda, xt, incx, beta, yt, incy)
    call dgemv('T', m, n, alpha, a, lda, xt, incx, beta, yt, incy)
    
+   ! ********* Start of non-transpose benchmark ***********
    ! Initialise clock
    call system_clock(count_rate=crate)
    write(*,*) "System clock rate = ", crate
@@ -72,11 +73,36 @@ program dgemv_benchmark
    ! Compute execution time
    etime = real(cend - cstart, dp) / real(crate, dp)
 
+   ! Compute Gflops
    flops = 2.0 * real(n * m, dp)
    flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
 
    write(*,*) "Normal time = ", etime
    write(*,*) "Normal Gflops", flops
+   ! ********* End of non-transpose benchmark ***********
+
+   ! ********* Start of transpose benchmark ***********
+   ! Initialise clock
+   call system_clock(count_rate=crate)
+   write(*,*) "System clock rate = ", crate
+
+   ! Run the benchmark
+   call system_clock(cstart)
+   do i = 1, nrun
+      call dgemv('T', m, n, alpha, a, lda, xn, incx, beta, yn, incy)
+   end do
+   call system_clock(cend)
+
+   ! Compute execution time
+   etime = real(cend - cstart, dp) / real(crate, dp)
+
+   ! Compute Gflops
+   flops = 2.0 * real(n * m, dp)
+   flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
+
+   write(*,*) "Transpose time = ", etime
+   write(*,*) "Transpose Gflops", flops
+   ! ********* End of transpose benchmark ***********
 
    deallocate(a)
    deallocate(xn)
