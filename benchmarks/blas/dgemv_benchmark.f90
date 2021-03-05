@@ -6,6 +6,7 @@ program dgemv_benchmark
 
    integer(4) :: i, j
    integer(8) :: crate, cstart, cend
+   real(kind=dp) :: etime, flops
    character(100) :: arg
    
    integer(4) :: n, m, lda, incx, incy
@@ -24,6 +25,8 @@ program dgemv_benchmark
    read(arg,*) incx
    call get_command_argument(5, arg)
    read(arg,*) incy
+   call get_command_argument(6, arg)
+   read(arg,*) nrun
 
    ! Allocate and assign arrays
    alpha = 1.0_dp
@@ -58,6 +61,23 @@ program dgemv_benchmark
    ! Initialise clock
    call system_clock(count_rate=crate)
    write(*,*) "System clock rate = ", crate
+
+   ! Run the benchmark
+   call system_clock(cstart)
+   do i = 1, nrun
+      call dgemv('N', m, n, alpha, a, lda, xn, incx, beta, yn, incy)
+   end do
+   call system_clock(cend)
+
+   ! Compute execution time
+   etime = real(cend - cstart, dp) / real(crate, dp)
+
+   flops = 2.0 * real(n * m, dp)
+   flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
+
+   write(*,*) "Normal time = ", etime
+   write(*,*) "Normal Gflops", flops
+
 
    deallocate(a)
    deallocate(xn)
