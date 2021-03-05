@@ -9,7 +9,7 @@ program dgemv_benchmark
    real(kind=dp) :: etime, flops
    character(100) :: arg
    
-   integer(4) :: n, m, lda, incx, incy
+   integer(4) :: n, m, lda, incx, incy, nrun
    real(kind=dp) :: alpha, beta
    real(kind=dp), dimension(:,:), allocatable :: a
    real(kind=dp), dimension(:), allocatable :: xn, yn, xt, yt
