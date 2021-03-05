@@ -1,7 +1,7 @@
 program dgemv_benchmark
-   implicit none
    use, intrinsic :: iso_fortran_env
-
+   implicit none
+   
    integer, parameter :: dp = REAL64
 
    integer(4) :: i, j
