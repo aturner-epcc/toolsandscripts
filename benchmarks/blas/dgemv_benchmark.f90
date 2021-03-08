@@ -73,7 +73,6 @@ program dgemv_benchmark
    ! ********* Start of non-transpose benchmark ***********
    ! Initialise clock
    call system_clock(count_rate=crate)
-   write(*,*) "System clock rate = ", crate
 
    ! Run the benchmark
    call system_clock(cstart)
@@ -90,8 +89,8 @@ program dgemv_benchmark
    flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
 
    call date_and_time(values=dt)
-   write(*,'i4, 5(a, i2.2), e13.5') dt(1), '/', dt(2), '/', dt(3), ' ', &
-                             dt(5), ':', dt(6), ':', dt(7), flops
+   write(*,'(a, i4, 5(a, i2.2), a, e13.5)') '"',dt(1), '-', dt(2), '-', dt(3), ' ', &
+                             dt(5), ':', dt(6), ':', dt(7), '","N",', flops
    ! ********* End of non-transpose benchmark ***********
 
    ! ********* Start of transpose benchmark ***********
@@ -110,8 +109,8 @@ program dgemv_benchmark
    flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
 
    call date_and_time(values=dt)
-   write(*,'i4, 5(a, i2.2), e13.5') dt(1), '/', dt(2), '/', dt(3), ' ', &
-                             dt(5), ':', dt(6), ':', dt(7), flops
+   write(*,'(a, i4, 5(a, i2.2), a, e13.5)') '"',dt(1), '-', dt(2), '-', dt(3), ' ', &
+                             dt(5), ':', dt(6), ':', dt(7), '","T",', flops
    ! ********* End of transpose benchmark ***********
 
    deallocate(a)
