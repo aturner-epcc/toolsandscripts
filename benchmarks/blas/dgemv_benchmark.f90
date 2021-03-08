@@ -89,8 +89,8 @@ program dgemv_benchmark
    flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
 
    call date_and_time(values=dt)
-   write(*,'(a, i4, 5(a, i2.2), a, e13.5)') '"',dt(1), '-', dt(2), '-', dt(3), ' ', &
-                             dt(5), ':', dt(6), ':', dt(7), '","N",', flops
+   write(*,'(a, i4, 5(a, i2.2), 3(a, i8), a, e13.5)') '"',dt(1), '-', dt(2), '-', dt(3), ' ', &
+                             dt(5), ':', dt(6), ':', dt(7), '","N",', m, ',', n, ',', nrun,',' flops
    ! ********* End of non-transpose benchmark ***********
 
    ! ********* Start of transpose benchmark ***********
@@ -109,8 +109,8 @@ program dgemv_benchmark
    flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
 
    call date_and_time(values=dt)
-   write(*,'(a, i4, 5(a, i2.2), a, e13.5)') '"',dt(1), '-', dt(2), '-', dt(3), ' ', &
-                             dt(5), ':', dt(6), ':', dt(7), '","T",', flops
+   write(*,'(a, i4, 5(a, i2.2), 3(a, i8), a, e13.5)') '"',dt(1), '-', dt(2), '-', dt(3), ' ', &
+                             dt(5), ':', dt(6), ':', dt(7), '","T",', m, ',', n, ',', nrun,',' flops
    ! ********* End of transpose benchmark ***********
 
    deallocate(a)
