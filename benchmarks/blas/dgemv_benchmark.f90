@@ -1,5 +1,10 @@
 !
 ! DGEMV simple benchmark
+!    Multiple runs of DGEMV with matix/vectors of specified size, both
+!    transpose and non-transpose versions. Outputs performance in Gflop/s.
+!
+! Usage:
+!    dgemv_benchmark.x <matrix rows> <matrix columns> <repititions>
 ! 
 ! Based on original C program by A. Jackson, EPCC
 !
