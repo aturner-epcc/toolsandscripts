@@ -17,6 +17,7 @@ program dgemv_benchmark
    integer, parameter :: dp = REAL64
 
    integer(4) :: i, j
+   integer(4), dimension(8) :: dt
    integer(8) :: crate, cstart, cend
    real(kind=dp) :: etime, flops
    character(100) :: arg
@@ -88,8 +89,9 @@ program dgemv_benchmark
    flops = 2.0 * real(m * (n+1), dp)
    flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
 
-   write(*,*) "Normal time = ", etime
-   write(*,*) "Normal Gflops", flops
+   call date_and_time(values=dt)
+   write(*,'i4, 5(a, i2.2), e13.5') dt(1), '/', dt(2), '/', dt(3), ' ', &
+                             dt(5), ':', dt(6), ':', dt(7), flops
    ! ********* End of non-transpose benchmark ***********
 
    ! ********* Start of transpose benchmark ***********
@@ -107,8 +109,9 @@ program dgemv_benchmark
    flops = 2.0 * real(n * (m+1), dp)
    flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
 
-   write(*,*) "Transpose time = ", etime
-   write(*,*) "Transpose Gflops", flops
+   call date_and_time(values=dt)
+   write(*,'i4, 5(a, i2.2), e13.5') dt(1), '/', dt(2), '/', dt(3), ' ', &
+                             dt(5), ':', dt(6), ':', dt(7), flops
    ! ********* End of transpose benchmark ***********
 
    deallocate(a)
