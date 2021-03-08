@@ -1,3 +1,10 @@
+!
+! DGEMV simple benchmark
+! 
+! Based on original C program by A. Jackson, EPCC
+!
+! A. Turner, EPCC, The University of Edinburgh
+!
 program dgemv_benchmark
    use, intrinsic :: iso_fortran_env
    implicit none
@@ -73,7 +80,7 @@ program dgemv_benchmark
    etime = real(cend - cstart, dp) / real(crate, dp)
 
    ! Compute Gflops
-   flops = 2.0 * real(n * m, dp)
+   flops = 2.0 * real(m * (n+1), dp)
    flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
 
    write(*,*) "Normal time = ", etime
@@ -92,7 +99,7 @@ program dgemv_benchmark
    etime = real(cend - cstart, dp) / real(crate, dp)
 
    ! Compute Gflops
-   flops = 2.0 * real(n * m, dp)
+   flops = 2.0 * real(n * (m+1), dp)
    flops = real(nrun, dp) * flops / (etime * 1000.0_dp**3)
 
    write(*,*) "Transpose time = ", etime
