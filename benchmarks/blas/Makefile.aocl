@@ -6,11 +6,11 @@ SRC	= dgemv_benchmark.f90
 FC      = ftn
 PP      = 
 
-LDFLAGS =   -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl
+LDFLAGS =  -L/lus/cls01095/work/z19/z19/aturner/software/AOCL/aocl-gcc10/lib -lblis
 FFLAGS  =  -O3 $(PP)
 LIBS    = 
 
-EXE	= dgemv_mkl.x
+EXE	= dgemv_aocl.x
 
 .SUFFIXES: .f90 .o
 
